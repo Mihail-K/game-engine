@@ -1,0 +1,9 @@
+{
+	"fileVersion": 1,
+	"versions": {
+		"bindbc-freetype": {"path":"../bindbc-freetype"},
+		"bindbc-glfw": "0.10.0",
+		"bindbc-loader": "0.3.1",
+		"bindbc-opengl": "0.13.0"
+	}
+}
