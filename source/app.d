@@ -4,6 +4,8 @@ import bindbc.glfw;
 import bindbc.opengl;
 import bindbc.freetype;
 
+import utils.shader;
+
 immutable string vertexShaderSource = q{
 	#version 330 core
 
@@ -71,9 +73,7 @@ void main()
 		}
 	];
 
-	uint[] shaders = [
-		createShaderProgram(shaderConfig)
-	];
+	auto shader = Shader(shaderConfig);
 
 	auto VAOs = createVertexArrayObjects(1);
 	auto VBOs = createVertexBufferObjects(VAOs, triangle);
@@ -93,9 +93,9 @@ void main()
 
 		foreach (index, VAO; VAOs)
 		{
-			int vertexColorLocation = glGetUniformLocation(shaders[index], "ourColor");
+			int vertexColorLocation = shader.uniformLocation("ourColor");
 
-			glUseProgram(shaders[index]);
+			shader.use();
 			glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
 
 			glBindVertexArray(VAO);
@@ -151,84 +151,6 @@ private uint createElementBufferObject(in uint[] indices)
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.length * uint.sizeof, indices.ptr, GL_STATIC_DRAW);
 
 	return EBO;
-}
-
-struct ShaderConfig
-{
-	string source;
-	uint   type;
-}
-
-private uint createShaderProgram(in ShaderConfig[] shaderConfigs...)
-{
-	import std.array : array;
-	import std.algorithm : map;
-
-	uint[] shaders = shaderConfigs
-		.map!((shaderConfig) => compileShader(shaderConfig.source, shaderConfig.type))
-		.array;
-
-	scope (exit)
-	{
-		foreach (shader; shaders)
-		{
-			glDeleteShader(shader);
-		}
-	}
-
-	return linkShaders(shaders);
-}
-
-private uint linkShaders(uint[] shaders...)
-{
-	uint program = glCreateProgram();
-
-	foreach (shader; shaders)
-	{
-		glAttachShader(program, shader);
-	}
-
-	glLinkProgram(program);
-
-	int success;
-	glGetProgramiv(program, GL_LINK_STATUS, &success);
-
-	if (!success)
-	{
-		import std.string : fromStringz;
-
-		char[512] infoLog;
-		glGetProgramInfoLog(program, 512, null, infoLog.ptr);
-
-		assert(0, infoLog.ptr.fromStringz);
-	}
-
-	return program;
-}
-
-private uint compileShader(string source, uint type)
-{
-	uint shader  = glCreateShader(type);
-	auto sources = [cast(char*) source.ptr];
-	auto lengths = [cast(int) source.length];
-
-	glShaderSource(shader, 1, sources.ptr, lengths.ptr);
-	glCompileShader(shader);
-
-	int success;
-	glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
-
-	if (!success)
-	{
-		import std.string : fromStringz;
-
-		char[512] infoLog;
-		glGetShaderInfoLog(shader, 512, null, infoLog.ptr);
-
-		assert(0, infoLog.ptr.fromStringz);
-	}
-
-	return shader;
 }
 
 private extern (C) void framebufferSizeCallback(GLFWwindow* window, int width, int height) nothrow
