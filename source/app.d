@@ -26,16 +26,23 @@ immutable string fragmentShaderSource = q{
 	}
 };
 
-immutable float[] vertices = [
-     0.5f,  0.5f, 0.0f,  // top right
-     0.5f, -0.5f, 0.0f,  // bottom right
-    -0.5f, -0.5f, 0.0f,  // bottom left
-    -0.5f,  0.5f, 0.0f   // top left 
+immutable float[] triangleA = [
+	// first triangle
+	-0.9f, -0.5f, 0.0f,  // left 
+	-0.0f, -0.5f, 0.0f,  // right
+	-0.45f, 0.5f, 0.0f,  // top 
+];
+
+immutable float[] triangleB = [
+	// second triangle
+	0.0f, -0.5f, 0.0f,  // left
+	0.9f, -0.5f, 0.0f,  // right
+	0.45f, 0.5f, 0.0f   // top 
 ];
 
 immutable uint[] indices = [
-    0, 1, 3,   // first triangle
-    1, 2, 3    // second triangle
+    0, 1, 2,   // first triangle
+    3, 4, 5   // second triangle
 ];
 
 void main()
@@ -54,19 +61,22 @@ void main()
 	prepareOpenGL();
 	glfwSetFramebufferSizeCallback(window, &framebufferSizeCallback);
 
-	uint vertexShader   = compileShader(vertexShaderSource,   GL_VERTEX_SHADER);
-	uint fragmentShader = compileShader(fragmentShaderSource, GL_FRAGMENT_SHADER);
-	uint shaderProgram  = linkShaders(vertexShader, fragmentShader);
+	ShaderConfig[] shaderConfigs = [
+		{
+			source: vertexShaderSource,
+			type:   GL_VERTEX_SHADER
+		},
+		{
+			source: fragmentShaderSource,
+			type:   GL_FRAGMENT_SHADER
+		}
+	];
 
-	glDeleteShader(vertexShader);
-	glDeleteShader(fragmentShader);
+	uint shaderProgram = createShaderProgram(shaderConfigs);
 
-	uint VAO = createVertexArrayObject();
-	uint VBO = createVertexBufferObject(vertices);
+	auto VAOs = createVertexArrayObjects(2);
+	auto VBOs = createVertexBufferObjects(VAOs, triangleA, triangleB);
 	uint EBO = createElementBufferObject(indices);
-
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * float.sizeof, null);
-	glEnableVertexAttribArray(0);
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -76,8 +86,13 @@ void main()
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		glUseProgram(shaderProgram);
-		glBindVertexArray(VAO);
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, null);
+
+		foreach (VAO; VAOs)
+		{
+			glBindVertexArray(VAO);
+			glDrawArrays(GL_TRIANGLES, 0, 3);
+		}
+		// glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, null);
 		glBindVertexArray(0);
 
 		glfwSwapBuffers(window);
@@ -87,25 +102,32 @@ void main()
 	writeln("Done.");
 }
 
-private uint createVertexArrayObject()
+private uint[] createVertexArrayObjects(uint count)
 {
-	uint VAO;
+	uint[] VAOs = new uint[count];
 
-	glGenVertexArrays(1, &VAO);
-	glBindVertexArray(VAO);
+	glGenVertexArrays(cast(uint) VAOs.length, VAOs.ptr);
 
-	return VAO;
+	return VAOs;
 }
 
-private uint createVertexBufferObject(in float[] vertices)
+private uint[] createVertexBufferObjects(uint[] VAOs, in float[][] vertexLists...)
 {
-	uint VBO;
+	uint[] VBOs = new uint[vertexLists.length];
 
-	glGenBuffers(1, &VBO);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, vertices.length * float.sizeof, vertices.ptr, GL_STATIC_DRAW);
+	glGenBuffers(cast(uint) vertexLists.length, VBOs.ptr);
 
-	return VBO;
+	foreach (index, vertices; vertexLists)
+	{
+		glBindVertexArray(VAOs[index]);
+		glBindBuffer(GL_ARRAY_BUFFER, VBOs[index]);
+		glBufferData(GL_ARRAY_BUFFER, vertices.length * float.sizeof, vertices.ptr, GL_STATIC_DRAW);
+
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * float.sizeof, null);
+		glEnableVertexAttribArray(0);
+	}
+
+	return VBOs;
 }
 
 private uint createElementBufferObject(in uint[] indices)
@@ -117,6 +139,32 @@ private uint createElementBufferObject(in uint[] indices)
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.length * uint.sizeof, indices.ptr, GL_STATIC_DRAW);
 
 	return EBO;
+}
+
+struct ShaderConfig
+{
+	string source;
+	uint   type;
+}
+
+private uint createShaderProgram(in ShaderConfig[] shaderConfigs...)
+{
+	import std.array : array;
+	import std.algorithm : map;
+
+	uint[] shaders = shaderConfigs
+		.map!((shaderConfig) => compileShader(shaderConfig.source, shaderConfig.type))
+		.array;
+
+	scope (exit)
+	{
+		foreach (shader; shaders)
+		{
+			glDeleteShader(shader);
+		}
+	}
+
+	return linkShaders(shaders);
 }
 
 private uint linkShaders(uint[] shaders...)
