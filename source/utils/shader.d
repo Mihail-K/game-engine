@@ -35,6 +35,11 @@ public:
     {
         glUniform1i(uniformLocation(name), value);
     }
+
+    void setFloat(string name, float value)
+    {
+        glUniform1f(uniformLocation(name), value);
+    }
 }
 
 private uint createShaderProgram(in ShaderConfig[] shaderConfigs...)

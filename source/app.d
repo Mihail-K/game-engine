@@ -36,10 +36,11 @@ immutable string fragmentShaderSource = q{
 
 	uniform sampler2D texture1;
 	uniform sampler2D texture2;
+	uniform float blend;
 
 	void main()
 	{
-		fragColor = mix(texture(texture1, texCoord), texture(texture2, vec2(texCoord.x, 1.0 - texCoord.y)), 0.2);
+		fragColor = mix(texture(texture1, texCoord), texture(texture2, vec2(texCoord.x, 1.0 - texCoord.y)), blend);
 	}
 };
 
@@ -112,6 +113,7 @@ void main()
 			shader.use();
 			shader.setInt("texture1", 0);
 			shader.setInt("texture2", 1);
+			shader.setFloat("blend", blend);
 
 			glActiveTexture(GL_TEXTURE0);
 			glBindTexture(GL_TEXTURE_2D, texture1);
@@ -210,11 +212,23 @@ private extern (C) void framebufferSizeCallback(GLFWwindow* window, int width, i
 	glViewport(0, 0, width, height);
 }
 
+private float blend = 0.2;
+
 private void processInput(GLFWwindow* window)
 {
+	import std.algorithm : min, max;
+
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 	{
 		glfwSetWindowShouldClose(window, true);
+	}
+	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+	{
+		blend = min(1.0, blend + 0.01);
+	}
+	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+	{
+		blend = max(0.0, blend - 0.01);
 	}
 }
 
