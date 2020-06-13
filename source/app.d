@@ -8,47 +8,35 @@ immutable string vertexShaderSource = q{
 	#version 330 core
 
 	layout (location = 0) in vec3 aPos;
+	layout (location = 1) in vec3 aColor;
+
+	out vec3 ourColor;
 
 	void main()
 	{
-		gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);
+		gl_Position = vec4(aPos, 1.0);
+		ourColor    = aColor;
 	}
 };
 
-immutable string fragmentShaderSourceOrange = q{
+immutable string fragmentShaderSource = q{
 	#version 330 core
+
+	in vec3 ourColor;
 
 	out vec4 fragColor;
 
 	void main()
 	{
-		fragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);
+		fragColor = vec4(ourColor, 1.0f);
 	}
 };
 
-immutable string fragmentShaderSourceBlue = q{
-	#version 330 core
-
-	out vec4 fragColor;
-
-	void main()
-	{
-		fragColor = vec4(0.2f, 0.5f, 1.0f, 1.0f);
-	}
-};
-
-immutable float[] triangleA = [
-	// first triangle
-	-0.9f, -0.5f, 0.0f,  // left 
-	-0.0f, -0.5f, 0.0f,  // right
-	-0.45f, 0.5f, 0.0f,  // top 
-];
-
-immutable float[] triangleB = [
-	// second triangle
-	0.0f, -0.5f, 0.0f,  // left
-	0.9f, -0.5f, 0.0f,  // right
-	0.45f, 0.5f, 0.0f   // top 
+immutable float[] triangle = [
+    // positions         // colors
+     0.5f, -0.5f, 0.0f,  1.0f, 0.0f, 0.0f,   // bottom right
+    -0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f,   // bottom left
+     0.0f,  0.5f, 0.0f,  0.0f, 0.0f, 1.0f    // top 
 ];
 
 immutable uint[] indices = [
@@ -72,35 +60,23 @@ void main()
 	prepareOpenGL();
 	glfwSetFramebufferSizeCallback(window, &framebufferSizeCallback);
 
-	ShaderConfig[] orangeShaderConfig = [
+	ShaderConfig[] shaderConfig = [
 		{
 			source: vertexShaderSource,
 			type:   GL_VERTEX_SHADER
 		},
 		{
-			source: fragmentShaderSourceOrange,
-			type:   GL_FRAGMENT_SHADER
-		}
-	];
-
-	ShaderConfig[] blueShaderConfig = [
-		{
-			source: vertexShaderSource,
-			type:   GL_VERTEX_SHADER
-		},
-		{
-			source: fragmentShaderSourceBlue,
+			source: fragmentShaderSource,
 			type:   GL_FRAGMENT_SHADER
 		}
 	];
 
 	uint[] shaders = [
-		createShaderProgram(orangeShaderConfig),
-		createShaderProgram(blueShaderConfig)
+		createShaderProgram(shaderConfig)
 	];
 
-	auto VAOs = createVertexArrayObjects(2);
-	auto VBOs = createVertexBufferObjects(VAOs, triangleA, triangleB);
+	auto VAOs = createVertexArrayObjects(1);
+	auto VBOs = createVertexBufferObjects(VAOs, triangle);
 	uint EBO = createElementBufferObject(indices);
 
 	while (!glfwWindowShouldClose(window))
@@ -110,10 +86,18 @@ void main()
 		glClearColor(0.2, 0.3, 0.3, 1.0);
 		glClear(GL_COLOR_BUFFER_BIT);
 
+		import std.math : sin;
+
+		float timeValue  = glfwGetTime();
+		float greenValue = (sin(timeValue) / 2.0f) + 0.5f;
 
 		foreach (index, VAO; VAOs)
 		{
+			int vertexColorLocation = glGetUniformLocation(shaders[index], "ourColor");
+
 			glUseProgram(shaders[index]);
+			glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
+
 			glBindVertexArray(VAO);
 			glDrawArrays(GL_TRIANGLES, 0, 3);
 		}
@@ -148,8 +132,11 @@ private uint[] createVertexBufferObjects(uint[] VAOs, in float[][] vertexLists..
 		glBindBuffer(GL_ARRAY_BUFFER, VBOs[index]);
 		glBufferData(GL_ARRAY_BUFFER, vertices.length * float.sizeof, vertices.ptr, GL_STATIC_DRAW);
 
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * float.sizeof, null);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * float.sizeof, cast(void*) 0);
 		glEnableVertexAttribArray(0);
+	
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * float.sizeof, cast(void*)(3 * float.sizeof));
+		glEnableVertexAttribArray(1);
 	}
 
 	return VBOs;
