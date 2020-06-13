@@ -30,6 +30,11 @@ public:
     {
         return glGetUniformLocation(_programID, name.toStringz);
     }
+
+    void setInt(string name, int value)
+    {
+        glUniform1i(uniformLocation(name), value);
+    }
 }
 
 private uint createShaderProgram(in ShaderConfig[] shaderConfigs...)

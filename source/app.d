@@ -34,11 +34,12 @@ immutable string fragmentShaderSource = q{
 
 	out vec4 fragColor;
 
-	uniform sampler2D ourTexture;
+	uniform sampler2D texture1;
+	uniform sampler2D texture2;
 
 	void main()
 	{
-		fragColor = texture(ourTexture, texCoord) * vec4(ourColor, 1.0);
+		fragColor = mix(texture(texture1, texCoord), texture(texture2, vec2(texCoord.x, 1.0 - texCoord.y)), 0.2);
 	}
 };
 
@@ -93,7 +94,9 @@ void main()
 	auto VAOs = createVertexArrayObjects(1);
 	auto VBOs = createVertexBufferObjects(VAOs, vertices);
 	uint EBO = createElementBufferObject(indices);
-	uint texture = createTexture("assets/container.jpg");
+
+	uint texture1 = createTexture("assets/container.jpg", 3, GL_RGB);
+	uint texture2 = createTexture("assets/face.png", 4, GL_RGBA);
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -102,19 +105,20 @@ void main()
 		glClearColor(0.2, 0.3, 0.3, 1.0);
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		import std.math : sin;
-
-		float timeValue  = glfwGetTime();
-		float greenValue = (sin(timeValue) / 2.0f) + 0.5f;
-
 		foreach (index, VAO; VAOs)
 		{
 			int vertexColorLocation = shader.uniformLocation("ourColor");
 
 			shader.use();
-			glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
+			shader.setInt("texture1", 0);
+			shader.setInt("texture2", 1);
 
-			glBindTexture(GL_TEXTURE_2D, texture);
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, texture1);
+
+			glActiveTexture(GL_TEXTURE1);
+			glBindTexture(GL_TEXTURE_2D, texture2);
+
 			glBindVertexArray(VAO);
 			// glDrawArrays(GL_TRIANGLES, 0, 3);
 			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, null);
@@ -129,7 +133,7 @@ void main()
 	writeln("Done.");
 }
 
-private uint createTexture(string filename)
+private uint createTexture(string filename, uint channels, uint format)
 {
 	uint texture;
 
@@ -141,19 +145,19 @@ private uint createTexture(string filename)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-	auto image = loadImageAsset(filename);
+	auto image = loadImageAsset(filename, channels);
 	assert(!image.e, "Failed to load Image Asset");
 	scope (exit) image.free();
 
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, image.w, image.h, 0, GL_RGB, GL_UNSIGNED_BYTE, image.buf8.ptr);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, image.w, image.h, 0, format, GL_UNSIGNED_BYTE, image.buf8.ptr);
 	glGenerateMipmap(GL_TEXTURE_2D);
 
 	return texture;
 }
 
-private IFImage loadImageAsset(string filename)
+private IFImage loadImageAsset(string filename, uint channels)
 {
-	return read_image(filename, 3);
+	return read_image(filename, channels);
 }
 
 private uint[] createVertexArrayObjects(uint count)
