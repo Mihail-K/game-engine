@@ -4,6 +4,8 @@ import bindbc.glfw;
 import bindbc.opengl;
 import bindbc.freetype;
 
+import imagefmt;
+
 import utils.shader;
 
 immutable string vertexShaderSource = q{
@@ -11,13 +13,16 @@ immutable string vertexShaderSource = q{
 
 	layout (location = 0) in vec3 aPos;
 	layout (location = 1) in vec3 aColor;
+	layout (location = 2) in vec2 aTexCoord;
 
 	out vec3 ourColor;
+	out vec2 texCoord;
 
 	void main()
 	{
 		gl_Position = vec4(aPos, 1.0);
 		ourColor    = aColor;
+		texCoord    = aTexCoord;
 	}
 };
 
@@ -25,25 +30,35 @@ immutable string fragmentShaderSource = q{
 	#version 330 core
 
 	in vec3 ourColor;
+	in vec2 texCoord;
 
 	out vec4 fragColor;
 
+	uniform sampler2D ourTexture;
+
 	void main()
 	{
-		fragColor = vec4(ourColor, 1.0f);
+		fragColor = texture(ourTexture, texCoord) * vec4(ourColor, 1.0);
 	}
 };
 
-immutable float[] triangle = [
-    // positions         // colors
-     0.5f, -0.5f, 0.0f,  1.0f, 0.0f, 0.0f,   // bottom right
-    -0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f,   // bottom left
-     0.0f,  0.5f, 0.0f,  0.0f, 0.0f, 1.0f    // top 
+immutable float[] vertices = [
+    // positions          // colors           // texture coords
+     0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   // top right
+     0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   // bottom right
+    -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   // bottom left
+    -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f    // top left 
+];
+
+immutable float[] texCoords = [
+	0.0f, 0.0f,
+	1.0f, 0.0f,
+	0.5f, 1.0f
 ];
 
 immutable uint[] indices = [
-    0, 1, 2,   // first triangle
-    3, 4, 5   // second triangle
+    0, 1, 3,   // first triangle
+    1, 2, 3   // second triangle
 ];
 
 void main()
@@ -76,8 +91,9 @@ void main()
 	auto shader = Shader(shaderConfig);
 
 	auto VAOs = createVertexArrayObjects(1);
-	auto VBOs = createVertexBufferObjects(VAOs, triangle);
+	auto VBOs = createVertexBufferObjects(VAOs, vertices);
 	uint EBO = createElementBufferObject(indices);
+	uint texture = createTexture("assets/container.jpg");
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -98,10 +114,12 @@ void main()
 			shader.use();
 			glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
 
+			glBindTexture(GL_TEXTURE_2D, texture);
 			glBindVertexArray(VAO);
-			glDrawArrays(GL_TRIANGLES, 0, 3);
+			// glDrawArrays(GL_TRIANGLES, 0, 3);
+			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, null);
 		}
-		// glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, null);
+
 		glBindVertexArray(0);
 
 		glfwSwapBuffers(window);
@@ -109,6 +127,33 @@ void main()
 	}
 
 	writeln("Done.");
+}
+
+private uint createTexture(string filename)
+{
+	uint texture;
+
+	glGenTextures(1, &texture);
+	glBindTexture(GL_TEXTURE_2D, texture);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	auto image = loadImageAsset(filename);
+	assert(!image.e, "Failed to load Image Asset");
+	scope (exit) image.free();
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, image.w, image.h, 0, GL_RGB, GL_UNSIGNED_BYTE, image.buf8.ptr);
+	glGenerateMipmap(GL_TEXTURE_2D);
+
+	return texture;
+}
+
+private IFImage loadImageAsset(string filename)
+{
+	return read_image(filename, 3);
 }
 
 private uint[] createVertexArrayObjects(uint count)
@@ -132,11 +177,14 @@ private uint[] createVertexBufferObjects(uint[] VAOs, in float[][] vertexLists..
 		glBindBuffer(GL_ARRAY_BUFFER, VBOs[index]);
 		glBufferData(GL_ARRAY_BUFFER, vertices.length * float.sizeof, vertices.ptr, GL_STATIC_DRAW);
 
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * float.sizeof, cast(void*) 0);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * float.sizeof, cast(void*) 0);
 		glEnableVertexAttribArray(0);
 	
-		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * float.sizeof, cast(void*)(3 * float.sizeof));
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * float.sizeof, cast(void*)(3 * float.sizeof));
 		glEnableVertexAttribArray(1);
+
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * float.sizeof, cast(void*)(6 * float.sizeof));
+		glEnableVertexAttribArray(2);
 	}
 
 	return VBOs;

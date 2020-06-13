@@ -68,8 +68,8 @@ private uint linkShaders(uint[] shaders...)
 
 	if (!success)
 	{
-		char[512] infoLog;
-		glGetProgramInfoLog(program, infoLog.length, null, infoLog.ptr);
+		auto infoLog = new char[512];
+		glGetProgramInfoLog(program, cast(uint) infoLog.length, null, infoLog.ptr);
 
 		assert(0, infoLog.ptr.fromStringz);
 	}
@@ -91,8 +91,8 @@ private uint compileShader(string source, uint type)
 
 	if (!success)
 	{
-		char[512] infoLog;
-		glGetShaderInfoLog(shader, infoLog.length, null, infoLog.ptr);
+		auto infoLog = new char[512];
+		glGetShaderInfoLog(shader, cast(uint) infoLog.length, null, infoLog.ptr);
 
 		assert(0, infoLog.ptr.fromStringz);
 	}
