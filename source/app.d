@@ -15,7 +15,7 @@ immutable string vertexShaderSource = q{
 	}
 };
 
-immutable string fragmentShaderSource = q{
+immutable string fragmentShaderSourceOrange = q{
 	#version 330 core
 
 	out vec4 fragColor;
@@ -23,6 +23,17 @@ immutable string fragmentShaderSource = q{
 	void main()
 	{
 		fragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);
+	}
+};
+
+immutable string fragmentShaderSourceBlue = q{
+	#version 330 core
+
+	out vec4 fragColor;
+
+	void main()
+	{
+		fragColor = vec4(0.2f, 0.5f, 1.0f, 1.0f);
 	}
 };
 
@@ -61,18 +72,32 @@ void main()
 	prepareOpenGL();
 	glfwSetFramebufferSizeCallback(window, &framebufferSizeCallback);
 
-	ShaderConfig[] shaderConfigs = [
+	ShaderConfig[] orangeShaderConfig = [
 		{
 			source: vertexShaderSource,
 			type:   GL_VERTEX_SHADER
 		},
 		{
-			source: fragmentShaderSource,
+			source: fragmentShaderSourceOrange,
 			type:   GL_FRAGMENT_SHADER
 		}
 	];
 
-	uint shaderProgram = createShaderProgram(shaderConfigs);
+	ShaderConfig[] blueShaderConfig = [
+		{
+			source: vertexShaderSource,
+			type:   GL_VERTEX_SHADER
+		},
+		{
+			source: fragmentShaderSourceBlue,
+			type:   GL_FRAGMENT_SHADER
+		}
+	];
+
+	uint[] shaders = [
+		createShaderProgram(orangeShaderConfig),
+		createShaderProgram(blueShaderConfig)
+	];
 
 	auto VAOs = createVertexArrayObjects(2);
 	auto VBOs = createVertexBufferObjects(VAOs, triangleA, triangleB);
@@ -85,10 +110,10 @@ void main()
 		glClearColor(0.2, 0.3, 0.3, 1.0);
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		glUseProgram(shaderProgram);
 
-		foreach (VAO; VAOs)
+		foreach (index, VAO; VAOs)
 		{
+			glUseProgram(shaders[index]);
 			glBindVertexArray(VAO);
 			glDrawArrays(GL_TRIANGLES, 0, 3);
 		}
