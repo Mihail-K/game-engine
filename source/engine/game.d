@@ -23,9 +23,11 @@ private:
     GameState       _state;
     Window          _window;
     ResourceManager _resourceManager;
-    SpriteRenderer  _renderer;
+    SpriteRenderer  _renderer = void;
 
 public:
+    @disable this();
+
     this(Window window)
     {
         _window = window;

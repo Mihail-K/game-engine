@@ -37,6 +37,8 @@ private:
     uint   _quadVAO;
 
 public:
+    @disable this();
+
     this(Shader shader)
     {
         _shader = shader;

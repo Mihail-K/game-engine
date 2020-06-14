@@ -25,6 +25,8 @@ private:
     GLFWwindow* _window;
 
 public:
+    @disable this();
+
     this(WindowConfig config)
     {
         _window = glfwCreateWindow(config.width, config.height, config.title.toStringz, null, null);

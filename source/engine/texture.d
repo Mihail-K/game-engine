@@ -81,6 +81,8 @@ private:
     uint _filterMax;
 
 public:
+    @disable this();
+
     this(TextureConfig config)
     {
         glGenTextures(1, &_textureID);

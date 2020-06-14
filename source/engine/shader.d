@@ -19,6 +19,8 @@ private:
 	uint _programID;
 
 public:
+	@disable this();
+
 	this(in ShaderConfig[] configs...)
 	{
 		_programID = createShaderProgram(configs);
