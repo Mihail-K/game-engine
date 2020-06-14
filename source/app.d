@@ -38,8 +38,8 @@ void main()
 	Game game = Game(window);
 	game.initialize();
 
-	float delta;
-	float lastFrame;
+	float delta = 0.0;
+	float lastFrame = 0.0;
 
 	while (!window.shouldClose)
 	{
