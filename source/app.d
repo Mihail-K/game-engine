@@ -120,8 +120,6 @@ void main()
 
 		foreach (index, VAO; VAOs)
 		{
-			int vertexColorLocation = shader.uniformLocation("ourColor");
-
 			shader.use();
 			shader.setInt("texture1", 0);
 			shader.setInt("texture2", 1);
@@ -134,7 +132,6 @@ void main()
 			texture2.bind();
 
 			glBindVertexArray(VAO);
-			// glDrawArrays(GL_TRIANGLES, 0, 3);
 			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, null);
 		}
 
