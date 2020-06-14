@@ -13,10 +13,10 @@ import utils.vector;
 struct SpriteConfig
 {
     Texture texture;
-    Vec2    position;
-    Vec2    size   = Vec2(10.0, 10.0);
-    float   rotate = 0.0;
-    Vec3    color  = Vec3(1.0);
+    Vec2    position = Vec2(0.0, 0.0);
+    Vec2    size     = Vec2(10.0, 10.0);
+    float   rotate   = 0.0;
+    Vec3    color    = Vec3(1.0);
 }
 
 immutable float[] vertices = [
