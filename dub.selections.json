@@ -5,6 +5,8 @@
 		"bindbc-glfw": "0.10.0",
 		"bindbc-loader": "0.3.1",
 		"bindbc-opengl": "0.13.0",
-		"imagefmt": "2.0.3"
+		"gfm": "8.0.3",
+		"imagefmt": "2.0.3",
+		"intel-intrinsics": "1.2.5"
 	}
 }
