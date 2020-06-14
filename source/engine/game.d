@@ -31,7 +31,6 @@ public:
         _window = window;
     }
 
-    uint VBO, VAO;
     void initialize()
     {
         ShaderConfig[] shaderConfigs = [
