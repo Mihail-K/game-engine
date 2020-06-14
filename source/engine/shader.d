@@ -9,7 +9,7 @@ import utils.vector;
 
 struct ShaderConfig
 {
-	string source;
+	string path;
 	uint   type;
 }
 
@@ -55,13 +55,13 @@ public:
 	}
 }
 
-private uint createShaderProgram(in ShaderConfig[] shaderConfigs...)
+private uint createShaderProgram(in ShaderConfig[] configs...)
 {
 	import std.array : array;
 	import std.algorithm : map;
 
-	uint[] shaders = shaderConfigs
-		.map!((shaderConfig) => compileShader(shaderConfig.source, shaderConfig.type))
+	uint[] shaders = configs
+		.map!(loadAndCompileShader)
 		.array;
 
 	scope (exit)
@@ -100,9 +100,10 @@ private uint linkShaders(uint[] shaders...)
 	return program;
 }
 
-private uint compileShader(string source, uint type)
+private uint loadAndCompileShader(ShaderConfig config)
 {
-	uint shader  = glCreateShader(type);
+	uint shader  = glCreateShader(config.type);
+	auto source  = loadShaderFile(config.path);
 	auto sources = [cast(char*) source.ptr];
 	auto lengths = [cast(int) source.length];
 
@@ -121,4 +122,21 @@ private uint compileShader(string source, uint type)
 	}
 
 	return shader;
+}
+
+private byte[] loadShaderFile(string filename)
+{
+	import std.stdio : File;
+
+    auto file = File(filename, "rb");
+
+    file.seek(0, SEEK_END);
+
+    byte[] output = new byte[file.tell];
+
+    file.seek(0, SEEK_SET);
+    file.rawRead(output);
+    file.close();
+
+    return output;
 }

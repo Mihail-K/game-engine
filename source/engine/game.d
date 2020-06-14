@@ -35,12 +35,12 @@ public:
     {
         ShaderConfig[] shaderConfigs = [
             {
-                source: vertexShaderSource,
-                type:   GL_VERTEX_SHADER
+                path: "source/shaders/sprite.vert",
+                type: GL_VERTEX_SHADER
             },
             {
-                source: fragmentShaderSource,
-                type:   GL_FRAGMENT_SHADER
+                path: "source/shaders/sprite.frag",
+                type: GL_FRAGMENT_SHADER
             }
         ];
 
@@ -88,33 +88,3 @@ public:
         return _window;
     }
 }
-
-immutable string vertexShaderSource = q{
-    #version 330 core
-    layout (location = 0) in vec4 vertex; // <vec2 position, vec2 texCoords>
-
-    out vec2 TexCoords;
-
-    uniform mat4 model;
-    uniform mat4 projection;
-
-    void main()
-    {
-        TexCoords = vertex.zw;
-        gl_Position = projection * model * vec4(vertex.xy, 0.0, 1.0);
-    }
-};
-
-immutable string fragmentShaderSource = q{
-    #version 330 core
-    in vec2 TexCoords;
-    out vec4 color;
-
-    uniform sampler2D image;
-    uniform vec3 spriteColor;
-
-    void main()
-    {    
-        color = vec4(spriteColor, 1.0) * texture(image, vec2(TexCoords.x, 1 - TexCoords.y));
-    }    
-};
