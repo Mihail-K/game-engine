@@ -7,6 +7,7 @@ import bindbc.freetype;
 import imagefmt;
 
 import engine.shader;
+import engine.texture;
 import engine.window;
 
 immutable string vertexShaderSource = q{
@@ -102,8 +103,13 @@ void main()
 	auto VBOs = createVertexBufferObjects(VAOs, vertices);
 	uint EBO = createElementBufferObject(indices);
 
-	uint texture1 = createTexture("assets/container.jpg", 3, GL_RGB);
-	uint texture2 = createTexture("assets/face.png", 4, GL_RGBA);
+	TextureConfig textureConfig1;
+	Texture texture1 = Texture(textureConfig1);
+	texture1.load("assets/container.jpg");
+
+	TextureConfig textureConfig2;
+	Texture texture2 = Texture(textureConfig2);
+	texture2.load("assets/face.png");
 
 	while (!window.shouldClose)
 	{
@@ -122,10 +128,10 @@ void main()
 			shader.setFloat("blend", blend);
 
 			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_2D, texture1);
+			texture1.bind();
 
 			glActiveTexture(GL_TEXTURE1);
-			glBindTexture(GL_TEXTURE_2D, texture2);
+			texture2.bind();
 
 			glBindVertexArray(VAO);
 			// glDrawArrays(GL_TRIANGLES, 0, 3);
