@@ -4,15 +4,22 @@ import bindbc.glfw;
 
 import std.string;
 
+import utils.matrix;
+
+alias WindowKeyCallback             = extern (C) void function(GLFWwindow*, int, int, int, int) nothrow;
 alias WindowFramebufferSizeCallback = extern (C) void function(GLFWwindow*, int, int) nothrow;
 
 struct WindowConfig
 {
     string title;
-    uint   width;
-    uint   height;
+    int    width;
+    int    height;
+}
 
-    WindowFramebufferSizeCallback framebufferSizeCallback;
+struct WindowDimension
+{
+    int width;
+    int height;
 }
 
 struct Window
@@ -25,16 +32,39 @@ public:
     {
         _window = glfwCreateWindow(config.width, config.height, config.title.toStringz, null, null);
         assert(_window, "Failed to Create GLFW Window.");
+    }
 
-        if (config.framebufferSizeCallback)
-        {
-            setFramebufferSizeCallback(config.framebufferSizeCallback);
-        }
+    this(GLFWwindow* window) nothrow
+    {
+        _window = window;
+    }
+
+    @property
+    WindowDimension dimensions()
+    {
+        int width, height;
+
+        glfwGetFramebufferSize(_window, &width, &height);
+
+        return WindowDimension(width, height);
+    }
+
+    @property
+    Mat4 projection()
+    {
+        auto dimensions = this.dimensions;
+
+        return Mat4.orthographic(0, dimensions.width, 0, dimensions.height, -1, 1);
     }
 
     void makeContextCurrent()
     {
         glfwMakeContextCurrent(_window);
+    }
+
+    void setKeyCallback(WindowKeyCallback callback)
+    {
+        glfwSetKeyCallback(_window, callback);
     }
 
     void setFramebufferSizeCallback(WindowFramebufferSizeCallback callback)
@@ -53,13 +83,13 @@ public:
     }
 
     @property
-    bool shouldClose()
+    bool shouldClose() nothrow
     {
         return cast(bool) glfwWindowShouldClose(_window);
     }
 
     @property
-    void shouldClose(bool value)
+    void shouldClose(bool value) nothrow
     {
         glfwSetWindowShouldClose(_window, value);
     }
