@@ -37,7 +37,7 @@ public:
     }
 
     @property
-    WindowDimension dimensions()
+    WindowDimension dimensions() nothrow
     {
         int width, height;
 
@@ -47,7 +47,7 @@ public:
     }
 
     @property
-    Mat4 projection()
+    Mat4 projection() nothrow
     {
         auto dimensions = this.dimensions;
 
@@ -79,12 +79,12 @@ public:
         glfwSetFramebufferSizeCallback(_window, &_internalCallback);
     }
 
-    void swapBuffers()
+    void swapBuffers() nothrow
     {
         glfwSwapBuffers(_window);
     }
 
-    int getKey(int key)
+    int getKey(int key) nothrow
     {
         return glfwGetKey(_window, key);
     }
