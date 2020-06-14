@@ -5,6 +5,7 @@ import bindbc.opengl;
 import engine.resource_manager;
 import engine.shader;
 import engine.sprite_renderer;
+import engine.texture;
 import engine.window;
 
 import utils.vector;
@@ -52,8 +53,11 @@ public:
 
         _renderer = SpriteRenderer(spriteShader);
 
-        _resourceManager.createTexture("face", "assets/face.png");
+        TextureConfig textureConfig = {
+            internalFormat: GL_RGBA
+        };
 
+        _resourceManager.createTexture("face", "assets/face.png", textureConfig);
     }
 
     void processInput(float delta)
@@ -70,10 +74,10 @@ public:
     {
         SpriteConfig spriteConfig = {
             texture:  _resourceManager.fetchTexture("face"),
-            position: Vec2(200, 200),
+            position: Vec2(0, 0),
             size:     Vec2(300, 400),
-            rotate:   -45,
-            color:    Vec3(0, 1, 0)
+            rotate:   0,
+            color:    Vec3(1, 0.8, 0.8)
         };
 
         _renderer.drawSprite(spriteConfig);

@@ -51,9 +51,14 @@ public:
 
         model = model.translation(Vec3(config.position, 0));
 
-        model.translate(Vec3(0.5 * config.size.x, 0.5 * config.size.y, 0));
-        model = model * Mat4.rotation(config.rotate.radians, Vec3(0, 0, 1));
-        model.translate(Vec3(-0.5 * config.size.x, -0.5 * config.size.y, 0));
+        if (config.rotate != 0)
+        {
+            auto angle = config.rotate.radians;
+
+            model.translate(Vec3(0.5 * config.size.x, 0.5 * config.size.y, 0));
+            model = model * Mat4.rotation(config.rotate.radians, Vec3(0, 0, 1));
+            model.translate(Vec3(-0.5 * config.size.x, -0.5 * config.size.y, 0));
+        }
 
         model.scale(Vec3(config.size, 1.0));
 

@@ -25,9 +25,8 @@ public:
         return _shaderCache.remove(key);
     }
 
-    Texture createTexture(string key, string filename)
+    Texture createTexture(string key, string filename, TextureConfig config = TextureConfig.init)
     {
-        TextureConfig config;
         Texture texture = Texture(config);
 
         texture.load(filename);
