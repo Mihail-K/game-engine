@@ -6,7 +6,8 @@ import bindbc.freetype;
 
 import imagefmt;
 
-import utils.shader;
+import engine.shader;
+import engine.window;
 
 immutable string vertexShaderSource = q{
 	#version 330 core
@@ -72,12 +73,17 @@ void main()
 		glfwTerminate();
 	}
 
-	GLFWwindow* window = glfwCreateWindow(800, 600, "Test", null, null);
-	assert(window, "Failed to create GLFW Window.");
-	glfwMakeContextCurrent(window);
-	
+	WindowConfig windowConfig = {
+		title: "Test Window",
+		width: 800,
+		height: 600
+	};
+
+	Window window = Window(windowConfig);
+	window.makeContextCurrent();
+
 	prepareOpenGL();
-	glfwSetFramebufferSizeCallback(window, &framebufferSizeCallback);
+	window.setFramebufferSizeCallback(&framebufferSizeCallback);
 
 	ShaderConfig[] shaderConfig = [
 		{
@@ -99,7 +105,7 @@ void main()
 	uint texture1 = createTexture("assets/container.jpg", 3, GL_RGB);
 	uint texture2 = createTexture("assets/face.png", 4, GL_RGBA);
 
-	while (!glfwWindowShouldClose(window))
+	while (!window.shouldClose)
 	{
 		processInput(window);
 
@@ -128,7 +134,7 @@ void main()
 
 		glBindVertexArray(0);
 
-		glfwSwapBuffers(window);
+		window.swapBuffers();
 		glfwPollEvents();
 	}
 
@@ -214,19 +220,19 @@ private extern (C) void framebufferSizeCallback(GLFWwindow* window, int width, i
 
 private float blend = 0.2;
 
-private void processInput(GLFWwindow* window)
+private void processInput(ref Window window)
 {
 	import std.algorithm : min, max;
 
-	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+	if (window.getKey(GLFW_KEY_ESCAPE) == GLFW_PRESS)
 	{
-		glfwSetWindowShouldClose(window, true);
+		window.shouldClose = true;
 	}
-	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+	if (window.getKey(GLFW_KEY_UP) == GLFW_PRESS)
 	{
 		blend = min(1.0, blend + 0.01);
 	}
-	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+	if (window.getKey(GLFW_KEY_DOWN) == GLFW_PRESS)
 	{
 		blend = max(0.0, blend - 0.01);
 	}

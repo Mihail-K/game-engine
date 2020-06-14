@@ -1,4 +1,4 @@
-module utils.shader;
+module engine.shader;
 
 import bindbc.opengl;
 
