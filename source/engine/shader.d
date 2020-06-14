@@ -4,6 +4,9 @@ import bindbc.opengl;
 
 import std.string;
 
+import utils.matrix;
+import utils.vector;
+
 struct ShaderConfig
 {
 	string source;
@@ -40,6 +43,16 @@ public:
     {
         glUniform1f(uniformLocation(name), value);
     }
+
+	void setVector3(string name, Vec3 value)
+	{
+		glUniform3f(uniformLocation(name), value.x, value.y, value.z);
+	}
+
+	void setMatrix4(string name, Mat4 value)
+	{
+		glUniformMatrix4fv(uniformLocation(name), 1, true, value.ptr);
+	}
 }
 
 private uint createShaderProgram(in ShaderConfig[] shaderConfigs...)

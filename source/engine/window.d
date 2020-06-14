@@ -42,11 +42,13 @@ public:
     @property
     WindowDimension dimensions()
     {
-        int width, height;
+        // int width, height;
 
-        glfwGetFramebufferSize(_window, &width, &height);
+        // glfwGetFramebufferSize(_window, &width, &height);
 
-        return WindowDimension(width, height);
+        // return WindowDimension(width, height);
+
+        return WindowDimension(800, 600);
     }
 
     @property

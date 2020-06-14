@@ -11,60 +11,6 @@ import engine.shader;
 import engine.texture;
 import engine.window;
 
-immutable string vertexShaderSource = q{
-	#version 330 core
-
-	layout (location = 0) in vec3 aPos;
-	layout (location = 1) in vec3 aColor;
-	layout (location = 2) in vec2 aTexCoord;
-
-	out vec3 ourColor;
-	out vec2 texCoord;
-
-	void main()
-	{
-		gl_Position = vec4(aPos, 1.0);
-		ourColor    = aColor;
-		texCoord    = aTexCoord;
-	}
-};
-
-immutable string fragmentShaderSource = q{
-	#version 330 core
-
-	in vec3 ourColor;
-	in vec2 texCoord;
-
-	out vec4 fragColor;
-
-	uniform sampler2D texture1;
-	uniform sampler2D texture2;
-
-	void main()
-	{
-		fragColor = mix(texture(texture1, texCoord), texture(texture2, vec2(texCoord.x, 1.0 - texCoord.y)), 0.2);
-	}
-};
-
-immutable float[] vertices = [
-    // positions          // colors           // texture coords
-     0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   // top right
-     0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   // bottom right
-    -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   // bottom left
-    -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f    // top left 
-];
-
-immutable float[] texCoords = [
-	0.0f, 0.0f,
-	1.0f, 0.0f,
-	0.5f, 1.0f
-];
-
-immutable uint[] indices = [
-    0, 1, 3,   // first triangle
-    1, 2, 3   // second triangle
-];
-
 void main()
 {
 	prepareGLFW();
@@ -86,8 +32,9 @@ void main()
 	prepareOpenGL();
 	window.setKeyCallback(&keyCallback);
 	window.setFramebufferSizeCallback(&framebufferSizeCallback);
+	glViewport(0, 0, windowConfig.width, windowConfig.height);
 
-	Game game;
+	Game game = Game(window);
 	game.initialize();
 
 	float delta;
