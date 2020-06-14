@@ -6,9 +6,6 @@ import std.string;
 
 import utils.matrix;
 
-alias WindowKeyCallback             = extern (C) void function(GLFWwindow*, int, int, int, int) nothrow;
-alias WindowFramebufferSizeCallback = extern (C) void function(GLFWwindow*, int, int) nothrow;
-
 struct WindowConfig
 {
     string title;
@@ -62,14 +59,24 @@ public:
         glfwMakeContextCurrent(_window);
     }
 
-    void setKeyCallback(WindowKeyCallback callback)
+    void setKeyCallback(alias callback)()
     {
-        glfwSetKeyCallback(_window, callback);
+        extern (C) void _internalCallback(GLFWwindow* window, int key, int scancode, int action, int mode) nothrow
+        {
+            callback(Window(window), key, scancode, action, mode);
+        }
+
+        glfwSetKeyCallback(_window, &_internalCallback);
     }
 
-    void setFramebufferSizeCallback(WindowFramebufferSizeCallback callback)
+    void setFramebufferSizeCallback(alias callback)()
     {
-        glfwSetFramebufferSizeCallback(_window, callback);
+        extern (C) void _internalCallback(GLFWwindow* window, int width, int height) nothrow
+        {
+            callback(Window(window), width, height);
+        }
+
+        glfwSetFramebufferSizeCallback(_window, &_internalCallback);
     }
 
     void swapBuffers()

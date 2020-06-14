@@ -30,8 +30,9 @@ void main()
 	window.makeContextCurrent();
 
 	prepareOpenGL();
-	window.setKeyCallback(&keyCallback);
-	window.setFramebufferSizeCallback(&framebufferSizeCallback);
+	window.setKeyCallback!(keyCallback);
+	window.setFramebufferSizeCallback!(framebufferSizeCallback);
+
 	glViewport(0, 0, windowConfig.width, windowConfig.height);
 
 	Game game = Game(window);
@@ -62,17 +63,15 @@ void main()
 	writeln("Done.");
 }
 
-private extern (C) void keyCallback(GLFWwindow* glfwWindow, int key, int scancode, int action, int mode) nothrow
+private void keyCallback(Window window, int key, int scancode, int action, int mode) nothrow
 {
-	Window window = Window(glfwWindow);
-
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
 	{
 		window.shouldClose = true;
 	}
 }
 
-private extern (C) void framebufferSizeCallback(GLFWwindow* window, int width, int height) nothrow
+private void framebufferSizeCallback(Window window, int width, int height) nothrow
 {
 	glViewport(0, 0, width, height);
 }
