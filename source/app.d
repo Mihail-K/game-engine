@@ -6,8 +6,7 @@ import bindbc.freetype;
 
 import imagefmt;
 
-import game_engine.core;
-import game_engine.utils;
+import game_engine;
 
 class TestGameState : GameState
 {

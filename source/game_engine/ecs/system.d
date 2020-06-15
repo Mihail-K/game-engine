@@ -8,13 +8,11 @@ abstract class System
 {
 private:
     GameContainer _gameContainer;
-    EntityManager _entityManager;
 
 public:
-    this(GameContainer gameContainer, EntityManager entityManager)
+    this(GameContainer gameContainer)
     {
         _gameContainer = gameContainer;
-        _entityManager = entityManager;
     }
 
     void setup()
@@ -37,14 +35,8 @@ protected:
     }
 
     @property
-    Window window()
-    {
-        return _gameContainer.window;
-    }
-
-    @property
     EntityManager entityManager()
     {
-        return _entityManager;
+        return _gameContainer.entityManager;
     }
 }

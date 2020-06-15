@@ -1,9 +1,10 @@
-module game_engine.core.game;
+module game_engine.game;
 
 import bindbc.glfw;
 import bindbc.opengl;
 
 import game_engine.core;
+import game_engine.ecs.entity_manager;
 import game_engine.utils.vector;
 
 class Game
@@ -13,6 +14,7 @@ private:
     GameState[GameStateID] _gameStates;
     Window                 _window;
     ResourceManager        _resourceManager;
+    EntityManager          _entityManager;
     Renderer               _renderer = void;
 
 public:
@@ -44,6 +46,7 @@ public:
     void initGameEngine()
     {
         _resourceManager = new ResourceManager();
+        _entityManager   = new EntityManager();
         _renderer        = createRenderer();
     }
 
@@ -104,7 +107,7 @@ public:
 private:
     private GameContainer gameContainer()
     {
-        return GameContainer(_resourceManager, _renderer, _window);
+        return GameContainer(_resourceManager, _entityManager, _renderer, _window);
     }
 
     private Renderer createRenderer()
