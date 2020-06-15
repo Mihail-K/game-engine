@@ -39,7 +39,7 @@ public:
             foreach (component; entity.components)
             {
                 entity.removeComponent(component);
-                _index[component.componentID].remove(entityID);
+                removeFromIndex(component.componentID, entityID);
             }
 
             _entities.remove(entityID);
@@ -57,7 +57,7 @@ public:
             foreach (component; components)
             {
                 entity.addComponent(component);
-                _index[component.componentID] ~= entityID;
+                addToIndex(component.componentID, entityID);
             }
 
             return true;
@@ -86,7 +86,7 @@ public:
 
                 if (!entity.hasComponents(component.componentID))
                 {
-                    _index[component.componentID].remove(entityID);
+                    removeFromIndex(component.componentID, entityID);
                 }
             }
 
@@ -101,7 +101,7 @@ public:
         if (auto entity = entityID in _entities)
         {
             entity.removeComponents(componentID);
-            _index[componentID].remove(entityID);
+            removeFromIndex(componentID, entityID);
 
             return true;
         }
@@ -113,5 +113,30 @@ private:
     EntityID nextEntityID()
     {
         return ++_entitySeries;
+    }
+
+    void addToIndex(ComponentID componentID, EntityID entityID)
+    {
+        if (auto ptr = componentID in _index)
+        {
+            (*ptr) ~= entityID;
+        }
+        else
+        {
+            _index[componentID] = Set!(EntityID)(entityID);
+        }
+    }
+
+    void removeFromIndex(ComponentID componentID, EntityID entityID)
+    {
+        if (auto ptr = componentID in _index)
+        {
+            ptr.remove(entityID);
+
+            if (ptr.length == 0)
+            {
+                _index.remove(componentID);
+            }
+        }
     }
 }
