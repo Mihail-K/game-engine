@@ -3,7 +3,7 @@ module game_engine.core.resource_manager;
 import game_engine.core.shader;
 import game_engine.core.texture;
 
-struct ResourceManager
+class ResourceManager
 {
 private:
     Shader[string]  _shaderCache;

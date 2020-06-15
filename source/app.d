@@ -6,10 +6,37 @@ import bindbc.freetype;
 
 import imagefmt;
 
-import game_engine.core.game_engine;
-import game_engine.core.shader;
-import game_engine.core.texture;
-import game_engine.core.window;
+import game_engine.core;
+import game_engine.utils;
+
+class TestGameState : GameState
+{
+	@property
+	override GameStateID gameStateID() const
+	{
+		return defaultGameStateID;
+	}
+
+	override void setup(GameContainer container)
+	{
+        TextureConfig textureConfig = { internalFormat: GL_RGBA };
+
+        container.resourceManager.createTexture("face", "assets/face.png", textureConfig);
+	}
+
+	override void render(GameContainer container)
+	{
+        SpriteConfig spriteConfig = {
+            texture:  container.resourceManager.fetchTexture("face"),
+            position: Vec2(0, 0),
+            size:     Vec2(300, 400),
+            rotate:   0,
+            color:    Vec3(1, 0.8, 0.8)
+        };
+
+        container.spriteRenderer.drawSprite(spriteConfig);
+	}
+}
 
 void main()
 {
@@ -26,39 +53,18 @@ void main()
 		height: 600
 	};
 
-	Window window = Window(windowConfig);
-	window.makeContextCurrent();
+	GameEngine gameEngine;
 
-	prepareOpenGL();
-	window.setKeyCallback!(keyCallback);
-	window.setFramebufferSizeCallback!(framebufferSizeCallback);
+	gameEngine.initWindow(windowConfig);
+	gameEngine.initGraphicsLibrary();
+	gameEngine.initGameEngine();
 
-	glViewport(0, 0, windowConfig.width, windowConfig.height);
+	gameEngine.window.setKeyCallback!(keyCallback);
+	gameEngine.window.setFramebufferSizeCallback!(framebufferSizeCallback);
 
-	GameEngine gameEngine = GameEngine(window);
-	gameEngine.initialize();
-
-	float delta = 0.0;
-	float lastFrame = 0.0;
-
-	while (!window.shouldClose)
-	{
-		float currentFrame = glfwGetTime();
-
-		delta     = currentFrame - lastFrame;
-		lastFrame = currentFrame;
-
-        glfwPollEvents();
-
-		gameEngine.processInput(delta);
-		gameEngine.update(delta);
-
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
-        gameEngine.render();
-
-		window.swapBuffers();
-	}
+	gameEngine.addGameState(new TestGameState());
+	gameEngine.setGameState(defaultGameStateID);
+	gameEngine.start();
 
 	writeln("Done.");
 }
@@ -106,26 +112,6 @@ void prepareGLFW()
 private extern (C) void appGlobalErrorHandler(int code, const(char)* message) nothrow
 {
     printf("Error(%d, 0x%x): %s\n", code, code, message);
-}
-
-void prepareOpenGL()
-{
-	GLSupport result = loadOpenGL();
-
-    switch (result)
-    {
-        case GLSupport.badLibrary:
-            assert(0, "Bad library");
-
-        case GLSupport.noLibrary:
-            assert(0, "Missing OpenGL.");
-
-        default:
-            writefln("Loaded OpenGL (%s)", result);
-    }
-
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
 void prepareFreeType()

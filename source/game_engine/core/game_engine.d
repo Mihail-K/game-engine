@@ -1,7 +1,10 @@
 module game_engine.core.game_engine;
 
+import bindbc.glfw;
 import bindbc.opengl;
 
+import game_engine.core.game_container;
+import game_engine.core.game_state;
 import game_engine.core.resource_manager;
 import game_engine.core.shader;
 import game_engine.core.sprite_renderer;
@@ -9,60 +12,89 @@ import game_engine.core.texture;
 import game_engine.core.window;
 import game_engine.utils.vector;
 
-enum GameState
-{
-    active,
-    menu,
-    victory
-}
-
 struct GameEngine
 {
 private:
-    GameState       _state;
-    Window          _window;
-    ResourceManager _resourceManager;
-    SpriteRenderer  _renderer = void;
+    GameStateID            _currentGameStateID = defaultGameStateID;
+    GameState[GameStateID] _gameStates;
+    Window                 _window;
+    ResourceManager        _resourceManager;
+    SpriteRenderer         _renderer = void;
 
 public:
-    @disable this();
-
-    this(Window window)
+    void initWindow(WindowConfig config)
     {
-        _window = window;
+        _window = Window(config);
+        _window.makeContextCurrent();
+    }
+
+    void initGraphicsLibrary()
+    {
+        assert(window.ready, "Window has not been initialized!");
+        auto dimensions = window.dimensions;
+
+        prepareOpenGL();
+	    glViewport(0, 0, dimensions.width, dimensions.height);
+    }
+
+    void initGameEngine()
+    {
+        initResourceManager();
         initSpriteRenderer();
     }
 
-    void initialize()
+    void addGameState(GameState gameState)
     {
-        TextureConfig textureConfig = {
-            internalFormat: GL_RGBA
-        };
-
-        _resourceManager.createTexture("face", "assets/face.png", textureConfig);
+        _gameStates[gameState.gameStateID] = gameState;
     }
 
-    void processInput(float delta)
+    @property
+    GameState currentGameState()
     {
+        auto ptr = _currentGameStateID in _gameStates;
 
+        return ptr ? *ptr : null;
     }
 
-    void update(float delta)
+    void setGameState(GameStateID gameStateID)
     {
+        auto current = currentGameState;
+        auto future  = _gameStates[gameStateID];
 
+        if (current)
+        {
+            current.teardown(gameContainer);
+        }
+
+        future.setup(gameContainer);
     }
 
-    void render()
-    {
-        SpriteConfig spriteConfig = {
-            texture:  _resourceManager.fetchTexture("face"),
-            position: Vec2(0, 0),
-            size:     Vec2(300, 400),
-            rotate:   0,
-            color:    Vec3(1, 0.8, 0.8)
-        };
+    void start()
+    {        
+        float delta     = 0.0;
+        float lastFrame = 0.0;
 
-        _renderer.drawSprite(spriteConfig);
+        while (!window.shouldClose)
+        {
+            float currentFrame = glfwGetTime();
+
+            delta     = currentFrame - lastFrame;
+            lastFrame = currentFrame;
+
+            auto gameState = currentGameState;
+            assert(gameState, "No current Game State!");
+
+            glfwPollEvents();
+
+            gameState.processInput(gameContainer, delta);
+            gameState.update(gameContainer, delta);
+
+            glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+            glClear(GL_COLOR_BUFFER_BIT);
+
+            gameState.render(gameContainer);
+            window.swapBuffers();
+        }
     }
 
     @property
@@ -72,6 +104,11 @@ public:
     }
 
 private:
+    void initResourceManager()
+    {
+        _resourceManager = new ResourceManager();
+    }
+
     void initSpriteRenderer()
     {
         ShaderConfig[] shaderConfigs = [
@@ -93,4 +130,30 @@ private:
 
         _renderer = SpriteRenderer(spriteShader);
     }
+
+    private GameContainer gameContainer()
+    {
+        return GameContainer(_resourceManager, _renderer);
+    }
+}
+
+private void prepareOpenGL()
+{
+	GLSupport result = loadOpenGL();
+
+    switch (result)
+    {
+        case GLSupport.badLibrary:
+            assert(0, "Bad library");
+
+        case GLSupport.noLibrary:
+            assert(0, "Missing OpenGL.");
+
+        default:
+            import std.stdio : writefln; // TODO: Use Logger.
+            writefln("Loaded OpenGL (%s)", result);
+    }
+
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }

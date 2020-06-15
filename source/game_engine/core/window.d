@@ -25,8 +25,6 @@ private:
     GLFWwindow* _window;
 
 public:
-    @disable this();
-
     this(WindowConfig config)
     {
         _window = glfwCreateWindow(config.width, config.height, config.title.toStringz, null, null);
@@ -36,6 +34,12 @@ public:
     this(GLFWwindow* window) nothrow
     {
         _window = window;
+    }
+
+    @property
+    bool ready() const
+    {
+        return _window !is null;
     }
 
     @property
