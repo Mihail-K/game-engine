@@ -6,7 +6,7 @@ import bindbc.opengl;
 import game_engine.core;
 import game_engine.utils.vector;
 
-struct Game
+class Game
 {
 private:
     GameStateID            _currentGameStateID = defaultGameStateID;
@@ -16,6 +16,16 @@ private:
     Renderer               _renderer = void;
 
 public:
+    this()
+    {
+        prepareGLFW();
+    }
+
+    ~this()
+    {
+        glfwTerminate();
+    }
+
     void initWindow(WindowConfig config)
     {
         _window = Window(config);
@@ -123,6 +133,39 @@ private:
 
         return SpriteRenderer(spriteShader);
     }
+}
+
+private void prepareGLFW()
+{
+	GLFWSupport result = loadGLFW();
+
+    switch (result)
+    {
+        case GLFWSupport.badLibrary:
+            assert(0, "Bad library");
+
+        case GLFWSupport.noLibrary:
+            assert(0, "Missing GLFW.");
+
+        default:
+            import std.stdio : writefln; // TODO: Use Logger.
+            writefln("Loaded GLFW (%s)", result);
+    }
+
+    glfwInit();
+
+    glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_API);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+
+    glfwSetErrorCallback(&appGlobalErrorHandler);
+}
+
+private extern (C) void appGlobalErrorHandler(int code, const(char)* message) nothrow
+{
+    printf("Error(%d, 0x%x): %s\n", code, code, message);
 }
 
 private void prepareOpenGL()
