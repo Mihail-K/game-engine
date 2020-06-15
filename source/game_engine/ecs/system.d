@@ -1,9 +1,8 @@
-module ecs.system;
+module game_engine.ecs.system;
 
-import ecs.entity_manager;
-
-import engine.game_engine;
-import engine.window;
+import game_engine.core.game_engine;
+import game_engine.core.window;
+import game_engine.ecs.entity_manager;
 
 abstract class System
 {

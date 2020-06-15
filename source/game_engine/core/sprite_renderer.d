@@ -1,14 +1,13 @@
-module engine.sprite_renderer;
+module game_engine.core.sprite_renderer;
 
 import bindbc.opengl;
 
-import engine.shader;
-import engine.texture;
+import game_engine.core.shader;
+import game_engine.core.texture;
+import game_engine.utils.matrix;
+import game_engine.utils.vector;
 
 import gfm.math;
-
-import utils.matrix;
-import utils.vector;
 
 struct SpriteConfig
 {

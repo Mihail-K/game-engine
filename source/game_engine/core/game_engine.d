@@ -1,14 +1,13 @@
-module engine.game_engine;
+module game_engine.core.game_engine;
 
 import bindbc.opengl;
 
-import engine.resource_manager;
-import engine.shader;
-import engine.sprite_renderer;
-import engine.texture;
-import engine.window;
-
-import utils.vector;
+import game_engine.core.resource_manager;
+import game_engine.core.shader;
+import game_engine.core.sprite_renderer;
+import game_engine.core.texture;
+import game_engine.core.window;
+import game_engine.utils.vector;
 
 enum GameState
 {
@@ -37,11 +36,11 @@ public:
     {
         ShaderConfig[] shaderConfigs = [
             {
-                path: "source/shaders/sprite.vert",
+                path: "source/game_engine/shaders/sprite.vert",
                 type: GL_VERTEX_SHADER
             },
             {
-                path: "source/shaders/sprite.frag",
+                path: "source/game_engine/shaders/sprite.frag",
                 type: GL_FRAGMENT_SHADER
             }
         ];

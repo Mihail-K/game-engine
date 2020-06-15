@@ -1,4 +1,4 @@
-module engine.texture;
+module game_engine.core.texture;
 
 import bindbc.opengl;
 

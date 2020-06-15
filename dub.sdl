@@ -1,4 +1,4 @@
-name "game"
+name "game_engine"
 description "A minimal D application."
 authors "Mihail-K"
 copyright "Copyright © 2020, Mihail-K"

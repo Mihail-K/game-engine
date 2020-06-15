@@ -1,4 +1,4 @@
-module ecs.component;
+module game_engine.ecs.component;
 
 alias ComponentID = string;
 

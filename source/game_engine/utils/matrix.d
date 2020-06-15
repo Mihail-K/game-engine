@@ -1,4 +1,4 @@
-module utils.matrix;
+module game_engine.utils.matrix;
 
 import gfm.math;
 

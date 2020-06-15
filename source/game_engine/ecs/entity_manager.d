@@ -1,9 +1,8 @@
-module ecs.entity_manager;
+module game_engine.ecs.entity_manager;
 
-import ecs.component;
-import ecs.entity;
-
-import utils.set;
+import game_engine.ecs.component;
+import game_engine.ecs.entity;
+import game_engine.utils.set;
 
 class EntityManager
 {

@@ -1,7 +1,7 @@
-module engine.resource_manager;
+module game_engine.core.resource_manager;
 
-import engine.shader;
-import engine.texture;
+import game_engine.core.shader;
+import game_engine.core.texture;
 
 struct ResourceManager
 {

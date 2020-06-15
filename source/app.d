@@ -6,10 +6,10 @@ import bindbc.freetype;
 
 import imagefmt;
 
-import engine.game_engine;
-import engine.shader;
-import engine.texture;
-import engine.window;
+import game_engine.core.game_engine;
+import game_engine.core.shader;
+import game_engine.core.texture;
+import game_engine.core.window;
 
 void main()
 {

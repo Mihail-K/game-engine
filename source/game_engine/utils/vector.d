@@ -1,4 +1,4 @@
-module utils.vector;
+module game_engine.utils.vector;
 
 import gfm.math;
 

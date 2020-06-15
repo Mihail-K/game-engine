@@ -1,11 +1,11 @@
-module engine.shader;
+module game_engine.core.shader;
 
 import bindbc.opengl;
 
 import std.string;
 
-import utils.matrix;
-import utils.vector;
+import game_engine.utils.matrix;
+import game_engine.utils.vector;
 
 struct ShaderConfig
 {

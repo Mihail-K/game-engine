@@ -1,10 +1,10 @@
-module engine.window;
+module game_engine.core.window;
 
 import bindbc.glfw;
 
-import std.string;
+import game_engine.utils.matrix;
 
-import utils.matrix;
+import std.string;
 
 struct WindowConfig
 {

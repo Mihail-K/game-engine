@@ -1,6 +1,6 @@
-module ecs.entity;
+module game_engine.ecs.entity;
 
-import ecs.component;
+import game_engine.ecs.component;
 
 import std.algorithm;
 
