@@ -3,13 +3,7 @@ module game_engine.core.game_engine;
 import bindbc.glfw;
 import bindbc.opengl;
 
-import game_engine.core.game_container;
-import game_engine.core.game_state;
-import game_engine.core.resource_manager;
-import game_engine.core.shader;
-import game_engine.core.sprite_renderer;
-import game_engine.core.texture;
-import game_engine.core.window;
+import game_engine.core;
 import game_engine.utils.vector;
 
 struct GameEngine
@@ -19,7 +13,7 @@ private:
     GameState[GameStateID] _gameStates;
     Window                 _window;
     ResourceManager        _resourceManager;
-    SpriteRenderer         _renderer = void;
+    Renderer               _renderer = void;
 
 public:
     void initWindow(WindowConfig config)
@@ -39,8 +33,8 @@ public:
 
     void initGameEngine()
     {
-        initResourceManager();
-        initSpriteRenderer();
+        _resourceManager = new ResourceManager();
+        _renderer        = createRenderer();
     }
 
     void addGameState(GameState gameState)
@@ -104,12 +98,17 @@ public:
     }
 
 private:
-    void initResourceManager()
+    private GameContainer gameContainer()
     {
-        _resourceManager = new ResourceManager();
+        return GameContainer(_resourceManager, _renderer);
     }
 
-    void initSpriteRenderer()
+    private Renderer createRenderer()
+    {
+        return Renderer(createSpriteRenderer());
+    }
+
+    private SpriteRenderer createSpriteRenderer()
     {
         ShaderConfig[] shaderConfigs = [
             {
@@ -126,14 +125,9 @@ private:
 
         spriteShader.use();
         spriteShader.setInt("image", 0);
-        spriteShader.setMatrix4("projection", window.projection);
+        spriteShader.setMatrix4("projection", _window.projection);
 
-        _renderer = SpriteRenderer(spriteShader);
-    }
-
-    private GameContainer gameContainer()
-    {
-        return GameContainer(_resourceManager, _renderer);
+        return SpriteRenderer(spriteShader);
     }
 }
 

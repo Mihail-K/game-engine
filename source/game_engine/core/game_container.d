@@ -1,13 +1,13 @@
 module game_engine.core.game_container;
 
 import game_engine.core.resource_manager;
-import game_engine.core.sprite_renderer;
+import game_engine.core.renderer;
 
 struct GameContainer
 {
 private:
     ResourceManager _resourceManager;
-    SpriteRenderer  _spriteRenderer;
+    Renderer        _renderer;
 
 public:
     @property
@@ -17,8 +17,8 @@ public:
     }
 
     @property
-    SpriteRenderer spriteRenderer()
+    Renderer renderer()
     {
-        return _spriteRenderer;
+        return _renderer;
     }
 }

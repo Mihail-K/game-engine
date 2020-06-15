@@ -34,7 +34,7 @@ class TestGameState : GameState
             color:    Vec3(1, 0.8, 0.8)
         };
 
-        container.spriteRenderer.drawSprite(spriteConfig);
+        container.renderer.drawSprite(spriteConfig);
 	}
 }
 
