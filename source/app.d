@@ -22,6 +22,9 @@ class TestGameState : GameState
         TextureConfig textureConfig = { internalFormat: GL_RGBA };
 
         container.resourceManager.createTexture("face", "assets/face.png", textureConfig);
+
+		container.window.setKeyCallback!(keyCallback);
+		container.window.setFramebufferSizeCallback!(framebufferSizeCallback);
 	}
 
 	override void render(GameContainer container)
@@ -53,18 +56,15 @@ void main()
 		height: 600
 	};
 
-	GameEngine gameEngine;
+	Game game;
 
-	gameEngine.initWindow(windowConfig);
-	gameEngine.initGraphicsLibrary();
-	gameEngine.initGameEngine();
+	game.initWindow(windowConfig);
+	game.initGraphicsLibrary();
+	game.initGameEngine();
 
-	gameEngine.window.setKeyCallback!(keyCallback);
-	gameEngine.window.setFramebufferSizeCallback!(framebufferSizeCallback);
-
-	gameEngine.addGameState(new TestGameState());
-	gameEngine.setGameState(defaultGameStateID);
-	gameEngine.start();
+	game.addGameState(new TestGameState());
+	game.setGameState(defaultGameStateID);
+	game.start();
 
 	writeln("Done.");
 }

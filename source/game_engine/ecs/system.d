@@ -1,19 +1,19 @@
 module game_engine.ecs.system;
 
-import game_engine.core.game_engine;
+import game_engine.core.game_container;
 import game_engine.core.window;
 import game_engine.ecs.entity_manager;
 
 abstract class System
 {
 private:
-    GameEngine    _gameEngine;
+    GameContainer _gameContainer;
     EntityManager _entityManager;
 
 public:
-    this(GameEngine gameEngine, EntityManager entityManager)
+    this(GameContainer gameContainer, EntityManager entityManager)
     {
-        _gameEngine    = gameEngine;
+        _gameContainer = gameContainer;
         _entityManager = entityManager;
     }
 
@@ -31,15 +31,15 @@ public:
 
 protected:
     @property
-    GameEngine gameEngine()
+    GameContainer gameContainer()
     {
-        return _gameEngine;
+        return _gameContainer;
     }
 
     @property
     Window window()
     {
-        return _gameEngine.window;
+        return _gameContainer.window;
     }
 
     @property

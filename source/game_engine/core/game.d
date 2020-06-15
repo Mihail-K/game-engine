@@ -1,4 +1,4 @@
-module game_engine.core.game_engine;
+module game_engine.core.game;
 
 import bindbc.glfw;
 import bindbc.opengl;
@@ -6,7 +6,7 @@ import bindbc.opengl;
 import game_engine.core;
 import game_engine.utils.vector;
 
-struct GameEngine
+struct Game
 {
 private:
     GameStateID            _currentGameStateID = defaultGameStateID;
@@ -24,8 +24,8 @@ public:
 
     void initGraphicsLibrary()
     {
-        assert(window.ready, "Window has not been initialized!");
-        auto dimensions = window.dimensions;
+        assert(_window.ready, "Window has not been initialized!");
+        auto dimensions = _window.dimensions;
 
         prepareOpenGL();
 	    glViewport(0, 0, dimensions.width, dimensions.height);
@@ -68,7 +68,7 @@ public:
         float delta     = 0.0;
         float lastFrame = 0.0;
 
-        while (!window.shouldClose)
+        while (!_window.shouldClose)
         {
             float currentFrame = glfwGetTime();
 
@@ -87,20 +87,14 @@ public:
             glClear(GL_COLOR_BUFFER_BIT);
 
             gameState.render(gameContainer);
-            window.swapBuffers();
+            _window.swapBuffers();
         }
-    }
-
-    @property
-    Window window()
-    {
-        return _window;
     }
 
 private:
     private GameContainer gameContainer()
     {
-        return GameContainer(_resourceManager, _renderer);
+        return GameContainer(_resourceManager, _renderer, _window);
     }
 
     private Renderer createRenderer()
