@@ -9,7 +9,7 @@ import game_engine.utils.vector;
 
 struct ShaderConfig
 {
-	string path;
+	string code;
 	uint   type;
 }
 
@@ -63,7 +63,7 @@ private uint createShaderProgram(in ShaderConfig[] configs...)
 	import std.algorithm : map;
 
 	uint[] shaders = configs
-		.map!(loadAndCompileShader)
+		.map!(compileShader)
 		.array;
 
 	scope (exit)
@@ -102,12 +102,11 @@ private uint linkShaders(uint[] shaders...)
 	return program;
 }
 
-private uint loadAndCompileShader(ShaderConfig config)
+private uint compileShader(ShaderConfig config)
 {
 	uint shader  = glCreateShader(config.type);
-	auto source  = loadShaderFile(config.path);
-	auto sources = [cast(char*) source.ptr];
-	auto lengths = [cast(int) source.length];
+	auto sources = [cast(char*) config.code.ptr];
+	auto lengths = [cast(int) config.code.length];
 
 	glShaderSource(shader, 1, sources.ptr, lengths.ptr);
 	glCompileShader(shader);

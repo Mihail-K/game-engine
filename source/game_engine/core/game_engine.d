@@ -30,29 +30,11 @@ public:
     this(Window window)
     {
         _window = window;
+        initSpriteRenderer();
     }
 
     void initialize()
     {
-        ShaderConfig[] shaderConfigs = [
-            {
-                path: "source/game_engine/shaders/sprite.vert",
-                type: GL_VERTEX_SHADER
-            },
-            {
-                path: "source/game_engine/shaders/sprite.frag",
-                type: GL_FRAGMENT_SHADER
-            }
-        ];
-
-        auto spriteShader = _resourceManager.createShader("sprite", shaderConfigs);
-
-        spriteShader.use();
-        spriteShader.setInt("image", 0);
-        spriteShader.setMatrix4("projection", window.projection);
-
-        _renderer = SpriteRenderer(spriteShader);
-
         TextureConfig textureConfig = {
             internalFormat: GL_RGBA
         };
@@ -87,5 +69,28 @@ public:
     Window window()
     {
         return _window;
+    }
+
+private:
+    void initSpriteRenderer()
+    {
+        ShaderConfig[] shaderConfigs = [
+            {
+                code: import("sprite.vert"),
+                type: GL_VERTEX_SHADER
+            },
+            {
+                code: import("sprite.frag"),
+                type: GL_FRAGMENT_SHADER
+            }
+        ];
+
+        auto spriteShader = _resourceManager.createShader("sprite", shaderConfigs);
+
+        spriteShader.use();
+        spriteShader.setInt("image", 0);
+        spriteShader.setMatrix4("projection", window.projection);
+
+        _renderer = SpriteRenderer(spriteShader);
     }
 }
