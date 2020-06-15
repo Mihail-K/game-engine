@@ -8,9 +8,9 @@ import std.string;
 
 struct WindowConfig
 {
-    string title;
-    int    width;
-    int    height;
+    string title  = "Game";
+    int    width  = 800;
+    int    height = 600;
 }
 
 struct WindowDimension
