@@ -2,19 +2,19 @@ module ecs.system;
 
 import ecs.entity_manager;
 
-import engine.game;
+import engine.game_engine;
 import engine.window;
 
 abstract class System
 {
 private:
-    Game _game;
+    GameEngine    _gameEngine;
     EntityManager _entityManager;
 
 public:
-    this(Game game, EntityManager entityManager)
+    this(GameEngine gameEngine, EntityManager entityManager)
     {
-        _game          = game;
+        _gameEngine    = gameEngine;
         _entityManager = entityManager;
     }
 
@@ -32,15 +32,15 @@ public:
 
 protected:
     @property
-    Game game()
+    GameEngine gameEngine()
     {
-        return _game;
+        return _gameEngine;
     }
 
     @property
     Window window()
     {
-        return _game.window;
+        return _gameEngine.window;
     }
 
     @property

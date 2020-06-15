@@ -1,4 +1,4 @@
-module engine.game;
+module engine.game_engine;
 
 import bindbc.opengl;
 
@@ -17,7 +17,7 @@ enum GameState
     victory
 }
 
-struct Game
+struct GameEngine
 {
 private:
     GameState       _state;

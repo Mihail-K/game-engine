@@ -6,7 +6,7 @@ import bindbc.freetype;
 
 import imagefmt;
 
-import engine.game;
+import engine.game_engine;
 import engine.shader;
 import engine.texture;
 import engine.window;
@@ -35,8 +35,8 @@ void main()
 
 	glViewport(0, 0, windowConfig.width, windowConfig.height);
 
-	Game game = Game(window);
-	game.initialize();
+	GameEngine gameEngine = GameEngine(window);
+	gameEngine.initialize();
 
 	float delta = 0.0;
 	float lastFrame = 0.0;
@@ -50,12 +50,12 @@ void main()
 
         glfwPollEvents();
 
-		game.processInput(delta);
-		game.update(delta);
+		gameEngine.processInput(delta);
+		gameEngine.update(delta);
 
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
-        game.render();
+        gameEngine.render();
 
 		window.swapBuffers();
 	}
