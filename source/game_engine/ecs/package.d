@@ -6,4 +6,5 @@ public
     import game_engine.ecs.entity;
     import game_engine.ecs.entity_manager;
     import game_engine.ecs.system;
+    import game_engine.ecs.system_manager;
 }

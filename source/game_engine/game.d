@@ -5,6 +5,7 @@ import bindbc.opengl;
 
 import game_engine.core;
 import game_engine.ecs.entity_manager;
+import game_engine.ecs.system_manager;
 import game_engine.utils.vector;
 
 class Game
@@ -15,6 +16,7 @@ private:
     Window                 _window;
     ResourceManager        _resourceManager;
     EntityManager          _entityManager;
+    SystemManager          _systemManager;
     Renderer               _renderer = void;
 
 public:
@@ -47,6 +49,7 @@ public:
     {
         _resourceManager = new ResourceManager();
         _entityManager   = new EntityManager();
+        _systemManager   = new SystemManager();
         _renderer        = createRenderer();
     }
 
@@ -107,7 +110,7 @@ public:
 private:
     private GameContainer gameContainer()
     {
-        return GameContainer(_resourceManager, _entityManager, _renderer, _window);
+        return GameContainer(_resourceManager, _entityManager, _systemManager, _renderer, _window);
     }
 
     private Renderer createRenderer()

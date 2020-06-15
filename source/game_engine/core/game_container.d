@@ -4,12 +4,14 @@ import game_engine.core.resource_manager;
 import game_engine.core.renderer;
 import game_engine.core.window;
 import game_engine.ecs.entity_manager;
+import game_engine.ecs.system_manager;
 
 struct GameContainer
 {
 private:
     ResourceManager _resourceManager;
     EntityManager   _entityManager;
+    SystemManager   _systemManager;
     Renderer        _renderer;
     Window          _window;
 
@@ -24,6 +26,12 @@ public:
     EntityManager entityManager()
     {
         return _entityManager;
+    }
+
+    @property
+    SystemManager systemManager()
+    {
+        return _systemManager;
     }
 
     @property
