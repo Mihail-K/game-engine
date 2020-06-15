@@ -84,6 +84,8 @@ public:
         float delta     = 0.0;
         float lastFrame = 0.0;
 
+        _systemManager.setup(gameContainer);
+
         while (!_window.shouldClose)
         {
             float currentFrame = glfwGetTime();
@@ -105,6 +107,8 @@ public:
             gameState.render(gameContainer);
             _window.swapBuffers();
         }
+
+        _systemManager.teardown(gameContainer);
     }
 
 private:
