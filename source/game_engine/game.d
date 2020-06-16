@@ -1,5 +1,6 @@
 module game_engine.game;
 
+import bindbc.freetype;
 import bindbc.glfw;
 import bindbc.opengl;
 
@@ -43,6 +44,8 @@ public:
 
         prepareOpenGL();
 	    glViewport(0, 0, dimensions.width, dimensions.height);
+
+        prepareFreeType();
     }
 
     void initGameEngine()
@@ -119,7 +122,10 @@ private:
 
     private Renderer createRenderer()
     {
-        return Renderer(createSpriteRenderer());
+        return Renderer(
+            createSpriteRenderer(),
+            createTextRenderer()
+        );
     }
 
     private SpriteRenderer createSpriteRenderer()
@@ -142,6 +148,27 @@ private:
         spriteShader.setMatrix4("projection", _window.projection);
 
         return SpriteRenderer(spriteShader);
+    }
+
+    private TextRenderer createTextRenderer()
+    {
+        ShaderConfig[] shaderConfigs = [
+            {
+                code: import("text.vert"),
+                type: GL_VERTEX_SHADER
+            },
+            {
+                code: import("text.frag"),
+                type: GL_FRAGMENT_SHADER
+            }
+        ];
+
+        auto textShader = _resourceManager.createShader("text", shaderConfigs);
+
+        textShader.use();
+        textShader.setMatrix4("projection", _window.projection);
+
+        return TextRenderer(textShader);
     }
 }
 
@@ -198,3 +225,22 @@ private void prepareOpenGL()
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
+
+void prepareFreeType()
+{
+	FTSupport result = loadFreeType("freetype.dll");
+
+    switch (result)
+    {
+        case FTSupport.badLibrary:
+            assert(0, "Bad library");
+
+        case FTSupport.noLibrary:
+            assert(0, "Missing FreeType.");
+
+        default:
+            import std.stdio : writefln; // TODO: Use Logger.
+            writefln("Loaded FreeType (%s)", result);
+    }
+}
+

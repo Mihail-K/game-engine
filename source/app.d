@@ -2,7 +2,6 @@ import std.stdio;
 
 import bindbc.glfw;
 import bindbc.opengl;
-import bindbc.freetype;
 
 import imagefmt;
 
@@ -10,6 +9,8 @@ import game_engine;
 
 class TestGameState : GameState
 {
+	Font font;
+
 	@property
 	override GameStateID gameStateID() const
 	{
@@ -24,6 +25,14 @@ class TestGameState : GameState
 
 		container.window.setKeyCallback!(keyCallback);
 		container.window.setFramebufferSizeCallback!(framebufferSizeCallback);
+
+		FontConfig fontConfig = { path: "assets/consola.ttf" };
+		font = new Font(fontConfig);
+
+		foreach (ch; 0..128)
+		{
+			font.loadChar(cast(char) ch);
+		}
 	}
 
 	override void render(GameContainer container)
@@ -37,6 +46,14 @@ class TestGameState : GameState
         };
 
         container.renderer.drawSprite(spriteConfig);
+
+		TextConfig textConfig = {
+			font:     font,
+			position: Vec2(300, 100),
+			color:    Vec3(0.75, 0.33, 0.95)
+		};
+
+		container.renderer.drawText("Left Beef", textConfig);
 	}
 }
 
@@ -72,21 +89,4 @@ private void keyCallback(Window window, int key, int scancode, int action, int m
 private void framebufferSizeCallback(Window window, int width, int height) nothrow
 {
 	glViewport(0, 0, width, height);
-}
-
-void prepareFreeType()
-{
-	FTSupport result = loadFreeType("freetype.dll");
-
-    switch (result)
-    {
-        case FTSupport.badLibrary:
-            assert(0, "Bad library");
-
-        case FTSupport.noLibrary:
-            assert(0, "Missing FreeType.");
-
-        default:
-            writefln("Loaded FreeType (%s)", result);
-    }
 }
